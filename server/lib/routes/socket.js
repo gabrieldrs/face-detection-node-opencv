@@ -15,8 +15,9 @@ var camera = new cv.VideoCapture(0);
 camera.setWidth(camWidth);
 camera.setHeight(camHeight);
 
-module.exports = function (socket) {
+module.exports = function (sockets) {
   setInterval(function() {
+    console.log(sockets.length);
     camera.read(function(err, im) {
       if (err) throw err;
 
@@ -28,7 +29,10 @@ module.exports = function (socket) {
           im.rectangle([face.x, face.y], [face.width, face.height], rectColor, rectThickness);
         }
 
-        socket.emit('frame', { buffer: im.toBuffer() });
+        for (let i = 0; i < sockets.length; i++){
+          let socket= sockets[i];
+          socket.emit('frame', { buffer: im.toBuffer(), for: 'everyone' });
+        }
       });
     });
   }, camInterval);

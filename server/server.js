@@ -23,6 +23,14 @@ server.listen(app.get('port'), function () {
 
 // WebSocket server
 var io = require('socket.io')(server);
-io.on('connection', require('./lib/routes/socket'));
+var socketList = [];
+var broadcaster = require('./lib/routes/socket')(socketList);
+io.on('connection', (socket) => {
+  socketList.push(socket)
+  socket.on('disconnect',function() {
+    let i = socketList.indexOf(socket);
+    socketList.splice(i,1);
+  })
+});
 
 module.exports.app = app;
